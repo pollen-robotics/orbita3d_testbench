@@ -1,0 +1,5 @@
+numpy
+matplotlib
+jupyter
+orbita3d @ git+https://github.com/pollen-robotics/orbita3d_control.git#subdirectory=orbita3d_c_api
+poulpe_ethercat_py @ git+https://github.com/pollen-robotics/poulpe_ethercat_controller.git#subdirectory=poulpe_ethercat_py
