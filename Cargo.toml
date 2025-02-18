@@ -1,0 +1,16 @@
+[package]
+name = "orbita_testbench"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+orbita3d_controller = { git = "https://github.com/pollen-robotics/orbita3d_control.git", branch = "develop" }
+poulpe_ethercat_grpc = { git = "https://github.com/pollen-robotics/poulpe_ethercat_controller.git", branch = "develop"}
+tokio = { version = "1.0.1", features = ["full"] }
+env_logger = "0.9.0"
+serde = { version = "1.0.183", features = ["derive"] }
+clap = { version = "4.0.32", features = ["derive"] }
+rprompt = "2.1"
+rerun = "0.20.0"
+csv = "1.3.1"
+log = "0.4.20"
