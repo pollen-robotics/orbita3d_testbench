@@ -13,6 +13,26 @@ Test plot outputs:
 
 <img src="docs/test1.png" width="250"  /><img src="docs/test2.png" width="250"/>
 
+
+### Pre-requisites
+
+To install the testbench you'll need to have:
+- Rust installed - see [Rust installation](https://www.rust-lang.org/tools/install)
+- EtherCAT IgH master installed - see [EtherCAT IgH master installation](https://pollen-robotics.github.io/orbita3d_control/installation/installation_ethercat/)
+
+### Installation
+
+To install the testbench do the following:
+```bash
+git clone https://github.com/pollen-robotics/orbita3d_testbench.git
+cd orbita3d_testbench
+```
+
+build the project:
+```bash
+cargo build --release
+```
+
 ### Running the benchmarking program
 
 The benchmarking program is in the `main.rs`. The benchmarking program takes in a timeseries csv file with the target values of the orbita3d actuator. The benchmarking program will send the target values to the orbita3d actuator and record the actual values of the actuator. The benchmarking program will output a csv file with the actual values of the actuator.
