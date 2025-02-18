@@ -65,5 +65,9 @@ List of flags:
 - Run the test program with an input csv file:
   - ie: 
 ```shell
-cargo run --release -- --start-server --configfile=config/ethercat_poulpe.yaml --input-csv=benchmarking/test_input.csv --viewer --output-csv=test_output.csv
+cargo run --release -- --start-server \
+        --configfile=config/ethercat_poulpe.yaml \
+        --input-csv=benchmarking/test_input.csv \
+        --output-csv=test_output.csv \
+        --viewer 
 ```
