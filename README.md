@@ -63,4 +63,7 @@ List of flags:
 
 ### Running the benchmarking program with the benchmarking data
 - Run the test program with an input csv file:
-  - ie: `cargo run --release -- --start-server --configfile=config/ethercat_poulpe.yaml --input-csv=benchmarking/test_input.csv --viewer --output-csv=test_output.csv`
+  - ie: 
+```shell
+cargo run --release -- --start-server --configfile=config/ethercat_poulpe.yaml --input-csv=benchmarking/test_input.csv --viewer --output-csv=test_output.csv
+```
