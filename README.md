@@ -42,9 +42,9 @@ The benchmarking program is in the `main.rs`. The benchmarking program takes in 
 
 To run the program do the following:
 ```bash
-RUST_LOG=info cargo run --release -- 
+RUST_LOG=info cargo run --release --
 ```
-The program will ask you the path to the input and the output csv files and will also use the default configuration file `config/fake.yaml`. If you want to use a different configuration file, you can specify it with the `--configfile` flag. 
+The program will ask you the path to the input and the output csv files and will also use the default configuration file `config/fake.yaml`. If you want to use a different configuration file, you can specify it with the `--configfile` flag.
 
 Additionally, you can specify the `--viewer` flag to view the actuator in the `Rerun` program.
 
@@ -55,8 +55,9 @@ List of flags:
 - `--input-csv` - specify the input csv file
 - `--output-csv` - specify the output csv file
 - `--start-server` - start the EtherCAT server (IMPORTANT mandatory if not already running)
+- `--nb-loop` - number of iteration to make (default=1)
 - `--viewer` - view the actuator in the `Rerun` program
-    - Note: the `Rerun` program must installed separately 
+    - Note: the `Rerun` program must installed separately
     ```
     cargo install cargo-binstall
     cargo binstall rerun-cli
@@ -64,11 +65,11 @@ List of flags:
 
 ### Running the benchmarking program with the benchmarking data
 - Run the test program with an input csv file:
-  - ie: 
+  - ie:
 ```shell
 cargo run --release -- --start-server \
         --configfile=config/ethercat_poulpe.yaml \
-        --input-csv=benchmarking/test_input.csv \
+        --input-csv=scripts/test_input.csv \
         --output-csv=test_output.csv \
-        --viewer 
+        --viewer
 ```
