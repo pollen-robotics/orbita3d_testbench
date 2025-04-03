@@ -417,7 +417,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &rerun::Scalar::new(board_temp[1]),
                 )?;
                 rec.log(
-                    "temperature/board/bottoù",
+                    "temperature/board/bottom",
                     &rerun::Scalar::new(board_temp[2]),
                 )?;
             }
