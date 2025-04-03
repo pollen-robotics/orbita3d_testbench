@@ -174,7 +174,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     // let date_as_string = Utc::now().to_string();
     let current_localtime = Local::now();
-    let date_as_string = current_localtime.format("%Y-%m-%d_%H%M%S");
+    let date_as_string = current_localtime.format("%Y-%m-%d_%Hh%Mm%Ss");
     thread::sleep(Duration::from_millis(1000));
 
     let mut iteration: u16 = 1;
