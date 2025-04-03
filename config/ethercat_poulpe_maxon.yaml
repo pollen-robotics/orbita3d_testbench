@@ -17,3 +17,9 @@ inverted_axes:
   - false
   - false
   - false
+motor_gearbox_params:
+  motor_gearbox_ratio: 28.1715976331
+  motor_nominal_current: 2130.0 #mA
+  motor_nominal_torque: 0.0481 # Nm
+  motor_efficiency: 0.87
+  motor_gearbox_efficiency: 0.9
