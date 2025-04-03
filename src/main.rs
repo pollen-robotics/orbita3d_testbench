@@ -343,24 +343,24 @@ fn main() -> Result<(), Box<dyn Error>> {
                 rec.log("position/present/yaw", &rerun::Scalar::new(curr_rpy[2]))?;
 
                 rec.log("position/raw/top", &rerun::Scalar::new(curr_raw_pos[0]))?;
-                rec.log("position/raw/mimd", &rerun::Scalar::new(curr_raw_pos[1]))?;
-                rec.log("position/raw/bot", &rerun::Scalar::new(curr_raw_pos[2]))?;
+                rec.log("position/raw/middle", &rerun::Scalar::new(curr_raw_pos[1]))?;
+                rec.log("position/raw/bottom", &rerun::Scalar::new(curr_raw_pos[2]))?;
 
                 rec.log("velocity/present/roll", &rerun::Scalar::new(curr_vel[0]))?;
                 rec.log("velocity/present/pitch", &rerun::Scalar::new(curr_vel[1]))?;
                 rec.log("velocity/present/yaw", &rerun::Scalar::new(curr_vel[2]))?;
 
                 rec.log("velocity/raw/top", &rerun::Scalar::new(curr_raw_vel[0]))?;
-                rec.log("velocity/raw/mid", &rerun::Scalar::new(curr_raw_vel[1]))?;
-                rec.log("velocity/raw/bot", &rerun::Scalar::new(curr_raw_vel[2]))?;
+                rec.log("velocity/raw/middle", &rerun::Scalar::new(curr_raw_vel[1]))?;
+                rec.log("velocity/raw/bottom", &rerun::Scalar::new(curr_raw_vel[2]))?;
 
                 rec.log("torque/present/roll", &rerun::Scalar::new(curr_torque[0]))?;
                 rec.log("torque/present/pitch", &rerun::Scalar::new(curr_torque[1]))?;
                 rec.log("torque/present/yaw", &rerun::Scalar::new(curr_torque[2]))?;
 
                 rec.log("torque/raw/top", &rerun::Scalar::new(curr_raw_torque[0]))?;
-                rec.log("torque/raw/mid", &rerun::Scalar::new(curr_raw_torque[1]))?;
-                rec.log("torque/raw/bot", &rerun::Scalar::new(curr_raw_torque[2]))?;
+                rec.log("torque/raw/middle", &rerun::Scalar::new(curr_raw_torque[1]))?;
+                rec.log("torque/raw/bottom", &rerun::Scalar::new(curr_raw_torque[2]))?;
 
                 rec.log(
                     "position/axis_sensor/roll",
@@ -402,12 +402,24 @@ fn main() -> Result<(), Box<dyn Error>> {
                 )?;
 
                 rec.log("temperature/motor/top", &rerun::Scalar::new(curr_temp[0]))?;
-                rec.log("temperature/motor/mod", &rerun::Scalar::new(curr_temp[1]))?;
-                rec.log("temperature/motor/bot", &rerun::Scalar::new(curr_temp[2]))?;
+                rec.log(
+                    "temperature/motor/middle",
+                    &rerun::Scalar::new(curr_temp[1]),
+                )?;
+                rec.log(
+                    "temperature/motor/bottom",
+                    &rerun::Scalar::new(curr_temp[2]),
+                )?;
 
                 rec.log("temperature/board/top", &rerun::Scalar::new(board_temp[0]))?;
-                rec.log("temperature/board/mod", &rerun::Scalar::new(board_temp[1]))?;
-                rec.log("temperature/board/bot", &rerun::Scalar::new(board_temp[2]))?;
+                rec.log(
+                    "temperature/board/middle",
+                    &rerun::Scalar::new(board_temp[1]),
+                )?;
+                rec.log(
+                    "temperature/board/bottoù",
+                    &rerun::Scalar::new(board_temp[2]),
+                )?;
             }
         }
 
