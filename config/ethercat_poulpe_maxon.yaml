@@ -1,0 +1,19 @@
+io: !PoulpeEthercat
+  url: http://127.0.0.1:50098
+  #name: NeckOrbita3d # it will use the name if available (optional but recomended)
+  id: 0 # otherwise it will use the id (optional)
+disks:
+  zeros: !ZeroStartup
+  # zeros: !FirmwareZero
+  reduction: 5.3125
+kinematics_model:
+  alpha: 0.9424777960769379 # 54 degrees
+  gamma_min: 0.6981317007977318 # 40 degrees
+  offset: 0.0
+  beta: 1.5707963267948966 # 90 degrees
+  gamma_max: 3.0543261909900767 # 175 degrees
+  passiv_arms_direct: true
+inverted_axes:
+  - false
+  - false
+  - false
