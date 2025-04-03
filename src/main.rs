@@ -3,10 +3,10 @@ use orbita3d_controller::Orbita3dController;
 use serde::Deserialize;
 use serde::Serialize;
 
+use chrono::prelude::*;
+use clap::Parser;
 use std::time::SystemTime;
 use std::{error::Error, thread, time::Duration};
-
-use clap::Parser;
 
 use poulpe_ethercat_grpc::server::launch_server;
 
@@ -31,8 +31,12 @@ struct Args {
     output_csv: Option<String>,
 
     /// Should we start the live viewer
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "false")]
     viewer: bool,
+
+    /// Should we start/end at the zero position
+    #[arg(short, long, default_value = "true")]
+    zero: bool,
 
     /// How many loop should we perform
     #[arg(short, long, default_value = "1")]
@@ -65,15 +69,21 @@ struct Output {
     target_roll: f64,
     target_pitch: f64,
     target_yaw: f64,
+    present_velocity_roll: f64,
+    present_velocity_pitch: f64,
+    present_velocity_yaw: f64,
+    present_torque_roll: f64,
+    present_torque_pitch: f64,
+    present_torque_yaw: f64,
     present_pos_top: f64,
     present_pos_mid: f64,
     present_pos_bot: f64,
     present_velocity_top: f64,
     present_velocity_mid: f64,
     present_velocity_bot: f64,
-    present_torque_top: f64,
-    present_torque_mid: f64,
-    present_torque_bot: f64,
+    present_current_top: f64,
+    present_current_mid: f64,
+    present_current_bot: f64,
     present_temperature_top: f64,
     present_temperature_mid: f64,
     present_temperature_bot: f64,
@@ -87,6 +97,7 @@ struct Output {
     board_temperature_mid: f64,
     board_temperature_bot: f64,
     board_state: u8,
+    control_mode: u8,
 }
 
 use rprompt::prompt_reply;
@@ -161,7 +172,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         Ok(_) => {}
         Err(e) => log::error!("Error: {}", e),
     }
-
+    // let date_as_string = Utc::now().to_string();
+    let current_localtime = Local::now();
+    let date_as_string = current_localtime.format("%Y-%m-%d_%H%M%S");
     thread::sleep(Duration::from_millis(1000));
 
     let mut iteration: u16 = 1;
@@ -198,6 +211,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
     let mut input_csv = csv::Reader::from_reader(infile);
+
+    if args.zero {
+        controller.enable_torque(true)?;
+        thread::sleep(Duration::from_millis(1000));
+        controller.set_target_rpy_orientation([0.0, 0.0, 0.0])?;
+        thread::sleep(Duration::from_millis(1000));
+        controller.disable_torque()?;
+        thread::sleep(Duration::from_millis(10));
+    }
+
     while iteration < args.nb_loop + 1 {
         let now = SystemTime::now();
         log::info!("Iteration: {iteration}/{:?}", args.nb_loop);
@@ -211,16 +234,17 @@ fn main() -> Result<(), Box<dyn Error>> {
             //Read feedback from Orbita
             let curr_rpy = controller.get_current_rpy_orientation()?;
             let torque = controller.is_torque_on()?;
-            // let curr_vel = controller.get_current_velocity()?;
-            // let curr_torque = controller.get_current_torque()?;
-            let curr_vel = controller.get_raw_motors_velocity()?;
-            let curr_torque = controller.get_raw_motors_current()?;
-            let curr_pos = controller.get_raw_motors_positions()?;
+            let curr_vel = controller.get_current_velocity()?;
+            let curr_torque = controller.get_current_torque()?;
+            let curr_raw_vel = controller.get_raw_motors_velocity()?;
+            let curr_raw_torque = controller.get_raw_motors_current()?;
+            let curr_raw_pos = controller.get_raw_motors_positions()?;
             let curr_temp = controller.get_motor_temperatures()?;
             let curr_axis = controller.get_axis_sensors()?;
             let curr_state = controller.get_board_state()?;
             let axis_zeros = controller.get_axis_sensor_zeros()?;
             let board_temp = controller.get_board_temperatures()?;
+            let control_mode = controller.get_control_mode()?;
             all_data.push(Output {
                 timestamp: t,
                 torque_on: torque,
@@ -230,15 +254,21 @@ fn main() -> Result<(), Box<dyn Error>> {
                 target_roll: input_csv_data.target_roll,
                 target_pitch: input_csv_data.target_pitch,
                 target_yaw: input_csv_data.target_yaw,
-                present_pos_top: curr_pos[0],
-                present_pos_mid: curr_pos[1],
-                present_pos_bot: curr_pos[2],
-                present_velocity_top: curr_vel[0],
-                present_velocity_mid: curr_vel[1],
-                present_velocity_bot: curr_vel[2],
-                present_torque_top: curr_torque[0],
-                present_torque_mid: curr_torque[1],
-                present_torque_bot: curr_torque[2],
+                present_velocity_roll: curr_vel[0],
+                present_velocity_pitch: curr_vel[1],
+                present_velocity_yaw: curr_vel[2],
+                present_torque_roll: curr_torque[0],
+                present_torque_pitch: curr_torque[1],
+                present_torque_yaw: curr_torque[2],
+                present_pos_top: curr_raw_pos[0],
+                present_pos_mid: curr_raw_pos[1],
+                present_pos_bot: curr_raw_pos[2],
+                present_velocity_top: curr_raw_vel[0],
+                present_velocity_mid: curr_raw_vel[1],
+                present_velocity_bot: curr_raw_vel[2],
+                present_current_top: curr_raw_torque[0],
+                present_current_mid: curr_raw_torque[1],
+                present_current_bot: curr_raw_torque[2],
                 present_temperature_top: curr_temp[0],
                 present_temperature_mid: curr_temp[1],
                 present_temperature_bot: curr_temp[2],
@@ -252,6 +282,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 board_temperature_mid: board_temp[1],
                 board_temperature_bot: board_temp[2],
                 board_state: curr_state,
+                control_mode: control_mode[0],
             });
 
             let tosleep = (input_csv_data.timestamp - t) * 1000.0;
@@ -289,6 +320,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &rerun::Scalar::new(if input_csv_data.torque_on { 1.0 } else { 0.0 }),
                 )?;
                 rec.log("target/board_state", &rerun::Scalar::new(curr_state as f64))?;
+                rec.log(
+                    "target/control_mode",
+                    &rerun::Scalar::new(control_mode[0] as f64),
+                )?;
 
                 rec.log(
                     "position/target/roll",
@@ -307,13 +342,25 @@ fn main() -> Result<(), Box<dyn Error>> {
                 rec.log("position/present/pitch", &rerun::Scalar::new(curr_rpy[1]))?;
                 rec.log("position/present/yaw", &rerun::Scalar::new(curr_rpy[2]))?;
 
+                rec.log("position/raw/top", &rerun::Scalar::new(curr_raw_pos[0]))?;
+                rec.log("position/raw/mimd", &rerun::Scalar::new(curr_raw_pos[1]))?;
+                rec.log("position/raw/bot", &rerun::Scalar::new(curr_raw_pos[2]))?;
+
                 rec.log("velocity/present/roll", &rerun::Scalar::new(curr_vel[0]))?;
                 rec.log("velocity/present/pitch", &rerun::Scalar::new(curr_vel[1]))?;
                 rec.log("velocity/present/yaw", &rerun::Scalar::new(curr_vel[2]))?;
 
+                rec.log("velocity/raw/top", &rerun::Scalar::new(curr_raw_vel[0]))?;
+                rec.log("velocity/raw/mid", &rerun::Scalar::new(curr_raw_vel[1]))?;
+                rec.log("velocity/raw/bot", &rerun::Scalar::new(curr_raw_vel[2]))?;
+
                 rec.log("torque/present/roll", &rerun::Scalar::new(curr_torque[0]))?;
                 rec.log("torque/present/pitch", &rerun::Scalar::new(curr_torque[1]))?;
                 rec.log("torque/present/yaw", &rerun::Scalar::new(curr_torque[2]))?;
+
+                rec.log("torque/raw/top", &rerun::Scalar::new(curr_raw_torque[0]))?;
+                rec.log("torque/raw/mid", &rerun::Scalar::new(curr_raw_torque[1]))?;
+                rec.log("torque/raw/bot", &rerun::Scalar::new(curr_raw_torque[2]))?;
 
                 rec.log(
                     "position/axis_sensor/roll",
@@ -364,6 +411,15 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         }
 
+        if args.zero {
+            controller.enable_torque(true)?;
+            thread::sleep(Duration::from_millis(1000));
+            controller.set_target_rpy_orientation([0.0, 0.0, 0.0])?;
+            thread::sleep(Duration::from_millis(1000));
+            controller.disable_torque()?;
+            thread::sleep(Duration::from_millis(10));
+        }
+
         let torque = controller.disable_torque();
         match torque {
             Ok(_) => log::info!("Torque is off"),
@@ -372,7 +428,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         thread::sleep(Duration::from_millis(1000));
 
         if args.nb_loop > 1 {
-            let outfile_it = format!("{outfile_path}_{iteration}");
+            let outfile_it = format!("{outfile_path}_{date_as_string}_{iteration}");
             log::info!("Writing output csv file: {}", outfile_it);
             let outfile = match std::fs::File::create_new(&outfile_it) {
                 Ok(f) => f,
@@ -386,8 +442,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 output_csv.serialize(data)?;
             }
         } else {
-            log::info!("Writing output csv file: {}", outfile_path);
-            let outfile = match std::fs::File::create_new(&outfile_path) {
+            let outfile_it = format!("{outfile_path}_{date_as_string}");
+            log::info!("Writing output csv file: {}", outfile_it);
+            let outfile = match std::fs::File::create_new(&outfile_it) {
                 Ok(f) => f,
                 Err(e) => {
                     log::error!("Error opening output csv file: {}", e);
